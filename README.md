@@ -23,11 +23,37 @@ npm run test
 
 ##  Deploy
 
-*TODO*
+This project is built with [Hardhat](https://hardhat.org/) so the deployment of the contract to a local blockchain can be performed using Hardhat and the included deployment script via `npm`. This assumes you have a blockchain that can support Solidity 0.7.4 and above. For this project I used [Ganache](https://www.trufflesuite.com/ganache) running the Muir Glacier hardfork on port 8545.
+
+```sh
+npm run deploy-local
+
+NftStore deployed to: 0x0...
+```
 
 ##  Interact
 
-*TODO*
+You can interact with the deployed contract instance by using the Hardhat console to connect to the local Ganache blockchain:
+
+```sh
+npx hardhat console --network localhost
+```
+
+And then you can mint a new NFT using the deployed contract:
+
+```js
+const contractAddress = '<contract address from deployment>';
+const NftStore = require('./artifacts/contracts/NftStore.sol/NftStore.json');
+const provider = ethers.providers.getDefaultProvider('http://127.0.0.1:8545');
+
+const contract = new ethers.Contract(contractAddress, NftStore.abi, provider.getSigner(0));
+
+const receipt = await contract.mint('some-token-uri');
+const [event] = await contract.queryFilter('Mint');
+
+ethers.BigNumber.from(event.args.tokenId).toString(); # 1
+event.args.tokenUri # some-token-uri
+```
 
 ##  Thoughts
 
@@ -45,7 +71,7 @@ But where do you store the JSON?
 
 In the spirit of decentralization the only "correct" answer is to put the JSON on [IPFS](https://ipfs.io/). But that isn't as easy as putting the JSON as static content on some HTTP server, and it probably costs more. So to me, the weirdest part of all of this is that when you buy an NFT, you're buying an identifier -- there's nothing manditorily enforcing that the metadata is immutable, unless the metadata is on IPFS, and even then nothing is enforcing it stays there. So one day you could have a digital pair of shoes, and the next you could have a PNG, and the next you could have a 404 Not Found. The one thing you'll always have is the identifier.
 
-In classic finance terminology, this technology facilitates trades, but not settlement. I'm not sure how you settle an NFT trade. That is, as a buyer, how do you truly take ownership of the asset (represented by the NFT) that you bought? And of course there's no centralization of token identifiers (like CUSIPs), so the identifier of your token is only valid to the contract that minted it.
+In classic finance terminology, this technology facilitates trades, but not settlement. I'm not sure how you settle an NFT trade. That is, as a buyer, how do you truly take ownership of the asset represented by the NFT that you bought? And of course there's no centralization of token identifiers (like CUSIPs), so the identifier of your token is only valid to the contract that minted it.
 
 ##  Stack
 
@@ -53,3 +79,4 @@ In classic finance terminology, this technology facilitates trades, but not sett
 *   [OpenZeppelin Contracts](https://openzeppelin.com/contracts/)
 *   [ethers.js](https://docs.ethers.io/)
 *   [Waffle](https://getwaffle.io/)
+*   [Ganache](https://www.trufflesuite.com/ganache)
