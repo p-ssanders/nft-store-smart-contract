@@ -16,7 +16,7 @@ describe("NftStore", function() {
     expect(await storeInstance.symbol()).to.equal("NFT");
   });
 
-  it("Contract should set MINTER_ROLE role for contract creator", async function() {
+  it("Contract should set MINTER_ROLE role for contract owner", async function() {
     const [owner] = await ethers.getSigners();
 
     const hasMinterRole = await storeInstance.hasRole(minterRole, owner.address);
@@ -24,7 +24,7 @@ describe("NftStore", function() {
     expect(hasMinterRole).to.be.true;
   });
 
-  it('MINTER role cannot be assigned after deploy', async function() {
+  it('MINTER_ROLE cannot be assigned after deployment', async function() {
     const [owner, acct1] = await ethers.getSigners();
 
     await expect(storeInstance.grantRole(minterRole, acct1)).to.be.reverted;
@@ -42,7 +42,7 @@ describe("NftStore", function() {
     expect(ownerBalance).to.equal(1);
   });
 
-  it('Minting emits an event with tokenUri', async function() {
+  it('Minting emits an event with tokenId, tokenUri', async function() {
     const tokenId = 1;
 
     await expect(storeInstance.mint("some-token-uri"))
@@ -58,9 +58,8 @@ describe("NftStore", function() {
       storeInstance
       .connect(acct1)
       .mint("some-token-uri")
-      ).to.be.reverted;
+      ).to.be.revertedWith('Must have MINTER role to mint');
   });
-
   it("Token can be burned", async function() {
     const receipt = await storeInstance.mint("some-token-uri");
     const [owner] = await ethers.getSigners();
