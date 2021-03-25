@@ -60,6 +60,7 @@ describe("NftStore", function() {
       .mint("some-token-uri")
       ).to.be.revertedWith('Must have MINTER role to mint');
   });
+
   it("Token can be burned", async function() {
     const receipt = await storeInstance.mint("some-token-uri");
     const [owner] = await ethers.getSigners();
